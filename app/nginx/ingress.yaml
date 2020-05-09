@@ -1,0 +1,38 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: nginx
+  namespace: kubernetes-app
+  labels:
+    app: nginx
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+  - host: app.local
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: frontend
+          servicePort: 4000
+      - path: /api
+        backend:
+          serviceName: service
+          servicePort: 3000
+      - path: /socket.io
+        backend:
+          serviceName: service
+          servicePort: 5000
+  - host: minio.local
+    http:
+      paths:
+      - backend:
+          serviceName: minio
+          servicePort: 9000
+  - host: pgadmin.local
+    http:
+      paths:
+      - backend:
+          serviceName: pgadmin
+          servicePort: 8181

@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: metricbeat
+  namespace: kubernetes-logging
+  labels:
+    app: metricbeat
+data:
+  ELASTICSEARCH_HOST: elasticsearch-logging
+  ELASTICSEARCH_PORT: "9200"
+  ELASTICSEARCH_USERNAME: ""
+  ELASTICSEARCH_PASSWORD: ""
+  ELASTIC_CLOUD_ID: ""
+  ELASTIC_CLOUD_AUTH: ""
+  metricbeat.yml: |-
+    metricbeat.config.modules:
+      # Mounted `metricbeat-daemonset-modules` configmap:
+      path: ${path.config}/modules.d/*.yml
+      # Reload module configs as they change:
+      reload.enabled: false
+
+    processors:
+      - add_cloud_metadata:
+
+    cloud.id: ${ELASTIC_CLOUD_ID}
+    cloud.auth: ${ELASTIC_CLOUD_AUTH}
+
+    output.elasticsearch:
+      hosts: ['${ELASTICSEARCH_HOST:elasticsearch-logging}:${ELASTICSEARCH_PORT:9200}']
+      # username: ${ELASTICSEARCH_USERNAME}
+      # password: ${ELASTICSEARCH_PASSWORD}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: metricbeat-daemonset-modules
+  namespace: kubernetes-logging
+  labels:
+    app: metricbeat
+data:
+  system.yml: |-
+    - module: system
+      period: 10s
+      metricsets:
+        - cpu
+        - load
+        - memory
+        - network
+        - process
+        - process_summary
+        #- core
+        #- diskio
+        #- socket
+      processes: ['.*']
+      process.include_top_n:
+        by_cpu: 5      # include top 5 processes by CPU
+        by_memory: 5   # include top 5 processes by memory
+
+    - module: system
+      period: 1m
+      metricsets:
+        - filesystem
+        - fsstat
+      processors:
+      - drop_event.when.regexp:
+          system.filesystem.mount_point: '^/(sys|cgroup|proc|dev|etc|host|lib)($|/)'
+  kubernetes.yml: |-
+    - module: kubernetes
+      metricsets:
+        - node
+        - system
+        - pod
+        - container
+        - volume
+      period: 10s
+      hosts: ["localhost:10255"]
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: metricbeat-deployment-modules
+  namespace: kubernetes-logging
+  labels:
+    app: metricbeat
+data:
+  # This module requires `kube-state-metrics` up and running under `kubernetes-logging` namespace
+  kubernetes.yml: |-
+    - module: kubernetes
+      metricsets:
+        - state_node
+        - state_deployment
+        - state_replicaset
+        - state_pod
+        - state_container
+        # Uncomment this to get k8s events:
+        #- event
+      period: 10s
+      hosts: ["kube-state-metrics:8080"]

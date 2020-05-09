@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: minio
+  namespace: kubernetes-app
+  labels:
+    app: minio
+data:
+  MINIO_ACCESS_KEY: AKIAIOSFODNN7EXAMPLE
+  MINIO_SECRET_KEY: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
