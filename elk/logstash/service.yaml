@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: logstash
   namespace: kubernetes-logging
+  labels:
+    app: logstash
 spec:
   selector:
     app: logstash
