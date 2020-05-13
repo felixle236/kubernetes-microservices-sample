@@ -5,11 +5,9 @@ metadata:
   namespace: kubernetes-logging
   labels:
     app: elasticsearch-logging
-    kubernetes.io/cluster-service: "true"
-    addonmanager.kubernetes.io/mode: Reconcile
 spec:
   serviceName: elasticsearch-logging
-  replicas: 1
+  replicas: 2
   updateStrategy:
     type: RollingUpdate
   selector:
@@ -19,9 +17,9 @@ spec:
     metadata:
       labels:
         app: elasticsearch-logging
-        kubernetes.io/cluster-service: "true"
     spec:
-      serviceAccountName: elasticsearch-logging
+      securityContext:
+        fsGroup: 1000
       containers:
       - image: docker.elastic.co/elasticsearch/elasticsearch:7.6.2
         name: elasticsearch-logging
@@ -34,30 +32,72 @@ spec:
             memory: 2Gi
         ports:
         - containerPort: 9200
-          name: db
-          protocol: TCP
+          name: http
         - containerPort: 9300
           name: transport
-          protocol: TCP
-        volumeMounts:
-        - name: elasticsearch-logging
-          mountPath: /data
+        securityContext:
+          privileged: true
+          runAsUser: 1000
+          capabilities:
+            add:
+            - IPC_LOCK
+            - SYS_RESOURCE
+        readinessProbe:
+          httpGet:
+            scheme: HTTP
+            path: /_cluster/health?local=true
+            port: 9200
+          initialDelaySeconds: 5
         env:
-        - name: NAMESPACE
+        - name: cluster.name
+          value: k8s-logs
+        - name: node.name
+          value: elasticsearch-logging
+        - name: discovery.seed_hosts
+          value: elasticsearch-logging-cluster
+        - name: cluster.initial_master_nodes
+          value: elasticsearch-logging
+        - name: ES_JAVA_OPTS
           valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-        - name: discovery.type
-          value: single-node
+            configMapKeyRef:
+              name: elasticsearch-logging
+              key: ES_JAVA_OPTS
+        volumeMounts:
+        - name: data
+          mountPath: /usr/share/elasticsearch/data
+        - name: config
+          mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+          subPath: elasticsearch.yml
       volumes:
-      - name: elasticsearch-logging
-        emptyDir: {}
+      - name: data
+        persistentVolumeClaim:
+          claimName: elasticsearch-logging-pv-claim
+      - name: config
+        configMap:
+          name: elasticsearch-logging
+          items:
+          - key: elasticsearch.yml
+            path: elasticsearch.yml
       # Elasticsearch requires vm.max_map_count to be at least 262144.
       # If your OS already sets up this number to a higher value, feel free
       # to remove this init container.
       initContainers:
-      - image: alpine:3.6
-        command: ["/sbin/sysctl", "-w", "vm.max_map_count=262144"]
-        name: elasticsearch-logging-init
+      - name: fix-permissions
+        image: busybox
+        command: ["sh", "-c", "chown -R 1000:1000 /usr/share/elasticsearch/data"]
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: data
+          mountPath: /usr/share/elasticsearch/data
+      - name: elasticsearch-logging-init
+        image: busybox
+        imagePullPolicy: IfNotPresent
+        command: ["sysctl", "-w", "vm.max_map_count=262144"]
+        securityContext:
+          privileged: true
+      - name: increase-fd-ulimit
+        image: busybox
+        command: ["sh", "-c", "ulimit -n 65536"]
         securityContext:
           privileged: true

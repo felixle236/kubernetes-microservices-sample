@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: elasticsearch-logging-pv-volume
+  namespace: kubernetes-logging
+  labels:
+    app: elasticsearch-logging
+spec:
+  storageClassName: elasticsearch-logging
+  capacity:
+    storage: 8Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /data
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: elasticsearch-logging-pv-claim
+  namespace: kubernetes-logging
+  labels:
+    app: elasticsearch-logging
+spec:
+  storageClassName: elasticsearch-logging
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 4Gi
