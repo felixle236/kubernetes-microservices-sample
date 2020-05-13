@@ -29,6 +29,14 @@ data:
                 - type: container
                   paths:
                     - /var/log/containers/*-${data.kubernetes.container.id}.log
+                  exclude_lines: ["^\\s+[\\-`('.|_]", "/app/kibana"]  # drop asciiart lines
+
+            - condition.equals:
+                kubernetes.labels.app: frontend
+              config:
+                - type: container
+                  paths:
+                    - /var/log/containers/*-${data.kubernetes.container.id}.log
                   exclude_lines: ["^\\s+[\\-`('.|_]"]  # drop asciiart lines
 
             - condition.equals:

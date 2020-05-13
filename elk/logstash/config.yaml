@@ -30,9 +30,20 @@ data:
       }
     }
     output {
-      elasticsearch {
-        hosts => [ "elasticsearch-logging:9200" ]
-        index => "logstash-%{+YYYY.MM.dd}"
-        sniffing => false
+      # stdout { codec => rubydebug { metadata => true } }
+
+      if [kubernetes][container][name] == "nginx-ingress-controller" {
+        elasticsearch {
+          hosts => [ "elasticsearch-logging:9200" ]
+          index => "logstash-nginx-%{+YYYY.MM.dd}"
+          sniffing => false
+        }
+      }
+      else {
+        elasticsearch {
+          hosts => [ "elasticsearch-logging:9200" ]
+          index => "logstash-%{[kubernetes][container][name]}-%{+YYYY.MM.dd}"
+          sniffing => false
+        }
       }
     }
