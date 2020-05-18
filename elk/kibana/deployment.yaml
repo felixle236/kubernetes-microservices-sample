@@ -21,14 +21,14 @@ spec:
     spec:
       containers:
       - name: kibana
-        image: docker.elastic.co/kibana/kibana:7.6.2
-        resources:
-          limits:
-            cpu: 1000m
-            memory: 1Gi
-          requests:
-            cpu: 100m
-            memory: 500Mi
+        image: docker.elastic.co/kibana/kibana:7.7.0
+        # resources:
+        #   limits:
+        #     cpu: 1000m
+        #     memory: 1Gi
+        #   requests:
+        #     cpu: 100m
+        #     memory: 500Mi
         envFrom:
         - configMapRef:
             name: kibana

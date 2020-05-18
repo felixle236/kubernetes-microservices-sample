@@ -18,66 +18,31 @@ spec:
       labels:
         app: elasticsearch-logging
     spec:
-      securityContext:
-        fsGroup: 1000
       containers:
-      - image: docker.elastic.co/elasticsearch/elasticsearch:7.6.2
+      - image: docker.elastic.co/elasticsearch/elasticsearch:7.7.0
         name: elasticsearch-logging
-        resources:
-          limits:
-            cpu: 2Gi
-            memory: 4Gi
-          requests:
-            cpu: 500m
-            memory: 2Gi
+        # resources:
+        #   limits:
+        #     cpu: 2Gi
+        #     memory: 4Gi
+        #   requests:
+        #     cpu: 500m
+        #     memory: 2Gi
         ports:
         - containerPort: 9200
           name: http
         - containerPort: 9300
           name: transport
-        securityContext:
-          privileged: true
-          runAsUser: 1000
-          capabilities:
-            add:
-            - IPC_LOCK
-            - SYS_RESOURCE
-        readinessProbe:
-          httpGet:
-            scheme: HTTP
-            path: /_cluster/health?local=true
-            port: 9200
-          initialDelaySeconds: 5
-        env:
-        - name: cluster.name
-          value: k8s-logs
-        - name: node.name
-          value: elasticsearch-logging
-        - name: discovery.seed_hosts
-          value: elasticsearch-logging-cluster
-        - name: cluster.initial_master_nodes
-          value: elasticsearch-logging
-        - name: ES_JAVA_OPTS
-          valueFrom:
-            configMapKeyRef:
-              name: elasticsearch-logging
-              key: ES_JAVA_OPTS
+        envFrom:
+        - configMapRef:
+            name: elasticsearch-logging
         volumeMounts:
         - name: data
           mountPath: /usr/share/elasticsearch/data
-        - name: config
-          mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
-          subPath: elasticsearch.yml
       volumes:
       - name: data
         persistentVolumeClaim:
           claimName: elasticsearch-logging-pv-claim
-      - name: config
-        configMap:
-          name: elasticsearch-logging
-          items:
-          - key: elasticsearch.yml
-            path: elasticsearch.yml
       # Elasticsearch requires vm.max_map_count to be at least 262144.
       # If your OS already sets up this number to a higher value, feel free
       # to remove this init container.
@@ -90,9 +55,8 @@ spec:
         volumeMounts:
         - name: data
           mountPath: /usr/share/elasticsearch/data
-      - name: elasticsearch-logging-init
+      - name: increase-vm-max-map
         image: busybox
-        imagePullPolicy: IfNotPresent
         command: ["sysctl", "-w", "vm.max_map_count=262144"]
         securityContext:
           privileged: true

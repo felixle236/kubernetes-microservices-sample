@@ -32,9 +32,18 @@ spec:
         - configMapRef:
             name: postgres
         volumeMounts:
-        - name: postgres-data
+        - name: data
           mountPath: /var/lib/postgresql/data
       volumes:
-      - name: postgres-data
+      - name: data
         persistentVolumeClaim:
           claimName: postgres-pv-claim
+      initContainers:
+      - name: fix-permissions
+        image: busybox
+        command: ["sh", "-c", "chmod -R 777 /var/lib/postgresql/data"]
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/postgresql/data

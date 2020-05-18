@@ -6,7 +6,7 @@ metadata:
   labels:
     app: logstash
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: logstash
@@ -17,14 +17,14 @@ spec:
     spec:
       containers:
       - name: logstash
-        image: docker.elastic.co/logstash/logstash:7.6.2
-        resources:
-          limits:
-            cpu: 1000m
-            memory: 1Gi
-          requests:
-            cpu: 100m
-            memory: 500Mi
+        image: docker.elastic.co/logstash/logstash:7.7.0
+        # resources:
+        #   limits:
+        #     cpu: 1000m
+        #     memory: 1Gi
+        #   requests:
+        #     cpu: 100m
+        #     memory: 500Mi
         ports:
         - containerPort: 5044
         volumeMounts:

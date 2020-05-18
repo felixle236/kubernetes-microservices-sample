@@ -20,18 +20,18 @@ spec:
       terminationGracePeriodSeconds: 30
       containers:
       - name: filebeat
-        image: docker.elastic.co/beats/filebeat:7.6.2
+        image: docker.elastic.co/beats/filebeat:7.7.0
         args: [
           "-c", "/etc/filebeat.yml",
           "-e",
         ]
-        resources:
-          limits:
-            cpu: 200m
-            memory: 200Mi
-          requests:
-            cpu: 100m
-            memory: 100Mi
+        # resources:
+        #   limits:
+        #     cpu: 200m
+        #     memory: 200Mi
+        #   requests:
+        #     cpu: 100m
+        #     memory: 100Mi
         env:
         - name: ELASTIC_CLOUD_ID
           value:
