@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-service
+  namespace: kubernetes-app
+  labels:
+    app: chat-service
+spec:
+  selector:
+    matchLabels:
+      app: chat-service
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: chat-service
+    spec:
+      initContainers:
+        - name: run-migration
+          image: felixle236/chat-service
+          command: ['sh', '-c', './node_modules/.bin/typeorm migration:run']
+      containers:
+      - name: chat-service
+        image: felixle236/chat-service
+        # resources:
+        #   limits:
+        #     cpu: 4
+        #     memory: 4Gi
+        #   requests:
+        #     cpu: 1
+        #     memory: 2Gi
+        ports:
+          - containerPort: 5000

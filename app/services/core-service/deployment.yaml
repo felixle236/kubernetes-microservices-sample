@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: core-service
+  namespace: kubernetes-app
+  labels:
+    app: core-service
+spec:
+  selector:
+    matchLabels:
+      app: core-service
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: core-service
+    spec:
+      initContainers:
+        - name: run-migration
+          image: felixle236/core-service
+          command: ['sh', '-c', './node_modules/.bin/typeorm migration:run']
+      containers:
+      - name: core-service
+        image: felixle236/core-service
+        # resources:
+        #   limits:
+        #     cpu: 4
+        #     memory: 4Gi
+        #   requests:
+        #     cpu: 1
+        #     memory: 2Gi
+        ports:
+          - containerPort: 3000
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 3000
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 3000
+          initialDelaySeconds: 10
+          timeoutSeconds: 5

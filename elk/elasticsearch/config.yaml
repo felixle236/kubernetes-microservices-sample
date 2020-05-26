@@ -10,8 +10,7 @@ data:
   node.name: elasticsearch-logging
   network.host: "0.0.0.0"
   bootstrap.memory_lock: "false"
-  cluster.initial_master_nodes: elasticsearch-logging-0,elasticsearch-logging-1
-  discovery.seed_hosts: elasticsearch-logging-0.elasticsearch-logging,elasticsearch-logging-1.elasticsearch-logging
+  discovery.zen.ping.unicast.hosts: elasticsearch-logging
   discovery.zen.minimum_master_nodes: "1"
   node.max_local_storage_nodes: "20"
   node.data: "true"
@@ -19,4 +18,4 @@ data:
   node.ingest: "false"
   xpack.security.enabled: "false"
   xpack.monitoring.enabled: "false"
-  ES_JAVA_OPTS: -Xms1g -Xmx1g
+  ES_JAVA_OPTS: "-Xms1g -Xmx1g"

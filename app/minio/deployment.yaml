@@ -37,7 +37,7 @@ spec:
             name: minio
         volumeMounts:
         - mountPath: /data
-          name: minio-data
+          name: data
         # Readiness probe detects situations when MinIO server instance
         # is not ready to accept traffic. Kubernetes doesn't forward
         # traffic to the pod while readiness checks fail.
@@ -57,6 +57,6 @@ spec:
           initialDelaySeconds: 120
           periodSeconds: 20
       volumes:
-      - name: minio-data
+      - name: data
         persistentVolumeClaim:
-          claimName: minio-pv-claim
+          claimName: minio

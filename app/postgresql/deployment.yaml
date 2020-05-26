@@ -37,7 +37,7 @@ spec:
       volumes:
       - name: data
         persistentVolumeClaim:
-          claimName: postgres-pv-claim
+          claimName: postgres
       initContainers:
       - name: fix-permissions
         image: busybox

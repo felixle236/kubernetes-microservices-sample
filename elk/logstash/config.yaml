@@ -36,7 +36,7 @@ data:
       if [kubernetes][container][name] == "nginx-ingress-controller" {
         elasticsearch {
           hosts => [ "elasticsearch-logging:9200" ]
-          index => "logstash-nginx-%{+YYYY.MM.dd}"
+          index => "logstash-nginx-ingress-%{+YYYY.MM.dd}"
           sniffing => false
         }
       }

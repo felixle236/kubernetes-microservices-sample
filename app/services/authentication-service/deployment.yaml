@@ -1,27 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: service
+  name: authentication-service
   namespace: kubernetes-app
   labels:
-    app: service
+    app: authentication-service
 spec:
   selector:
     matchLabels:
-      app: service
+      app: authentication-service
   replicas: 2
   template:
     metadata:
       labels:
-        app: service
+        app: authentication-service
     spec:
       initContainers:
         - name: run-migration
-          image: felixle236/service
+          image: felixle236/authentication-service
           command: ['sh', '-c', './node_modules/.bin/typeorm migration:run']
       containers:
-      - name: service
-        image: felixle236/service
+      - name: authentication-service
+        image: felixle236/authentication-service
         # resources:
         #   limits:
         #     cpu: 4
@@ -30,5 +30,4 @@ spec:
         #     cpu: 1
         #     memory: 2Gi
         ports:
-          - containerPort: 3000
-          - containerPort: 5000
+          - containerPort: 3001

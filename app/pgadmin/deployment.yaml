@@ -23,3 +23,7 @@ spec:
         envFrom:
         - configMapRef:
             name: pgadmin
+      # initContainers:
+      # - name: fix-permission
+      #   image: busybox
+      #   command: ['sh', '-c', 'sudo chown -R postgres /usr/local/var/postgres']

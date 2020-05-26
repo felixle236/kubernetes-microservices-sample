@@ -7,7 +7,7 @@ metadata:
     app: elasticsearch-logging
 spec:
   serviceName: elasticsearch-logging
-  replicas: 2
+  replicas: 1
   updateStrategy:
     type: RollingUpdate
   selector:
@@ -18,9 +18,18 @@ spec:
       labels:
         app: elasticsearch-logging
     spec:
+      securityContext:
+        fsGroup: 1000
       containers:
       - image: docker.elastic.co/elasticsearch/elasticsearch:7.7.0
         name: elasticsearch-logging
+        securityContext:
+          privileged: true
+          runAsUser: 1000
+          capabilities:
+            add:
+            - IPC_LOCK
+            - SYS_RESOURCE
         # resources:
         #   limits:
         #     cpu: 2Gi
@@ -39,6 +48,12 @@ spec:
         volumeMounts:
         - name: data
           mountPath: /usr/share/elasticsearch/data
+        readinessProbe:
+          httpGet:
+            scheme: HTTP
+            path: /_cluster/health?local=true
+            port: 9200
+          initialDelaySeconds: 5
       volumes:
       - name: data
         persistentVolumeClaim:

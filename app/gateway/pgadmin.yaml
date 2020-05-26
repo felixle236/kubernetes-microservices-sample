@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: pgadmin
+  namespace: kubernetes-app
+  labels:
+    app: gateway
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+  - host: pgadmin.local
+    http:
+      paths:
+      - backend:
+          serviceName: pgadmin
+          servicePort: 80

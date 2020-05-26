@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: postgres-pv-volume
+  name: postgres
   namespace: kubernetes-app
   labels:
     app: postgres
@@ -19,11 +19,14 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: postgres-pv-claim
+  name: postgres
   namespace: kubernetes-app
   labels:
     app: postgres
 spec:
+  selector:
+    matchLabels:
+      app: postgres
   storageClassName: postgres
   accessModes:
     - ReadWriteMany

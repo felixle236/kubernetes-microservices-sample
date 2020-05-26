@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: minio-pv-volume
+  name: minio
   namespace: kubernetes-app
   labels:
     app: minio
@@ -18,11 +18,14 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: minio-pv-claim
+  name: minio
   namespace: kubernetes-app
   labels:
     app: minio
 spec:
+  selector:
+    matchLabels:
+      app: minio
   storageClassName: minio
   accessModes:
     - ReadWriteOnce

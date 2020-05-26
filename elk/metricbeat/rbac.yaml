@@ -2,6 +2,8 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRoleBinding
 metadata:
   name: metricbeat
+  labels:
+    app: metricbeat
 subjects:
 - kind: ServiceAccount
   name: metricbeat
@@ -10,7 +12,9 @@ roleRef:
   kind: ClusterRole
   name: metricbeat
   apiGroup: rbac.authorization.k8s.io
+
 ---
+
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRole
 metadata:
@@ -18,16 +22,32 @@ metadata:
   labels:
     app: metricbeat
 rules:
-- apiGroups: [""] # "" indicates the core API group
+- apiGroups: [""]
   resources:
+  - nodes
   - namespaces
   - events
   - pods
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["extensions"]
+  resources:
+  - replicasets
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources:
+  - statefulsets
+  - deployments
+  - replicasets
+  verbs: ["get", "list", "watch"]
+- apiGroups:
+  - ""
+  resources:
+  - nodes/stats
   verbs:
   - get
-  - watch
-  - list
+
 ---
+
 apiVersion: v1
 kind: ServiceAccount
 metadata:

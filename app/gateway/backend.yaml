@@ -1,0 +1,59 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: backend
+  namespace: kubernetes-app
+  labels:
+    app: gateway
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/auth-url: http://authentication-service.kubernetes-app.svc.cluster.local/api/v1/auth/authenticate
+    nginx.ingress.kubernetes.io/auth-signin: http://app.local/login
+    nginx.ingress.kubernetes.io/auth-method: POST
+    nginx.ingress.kubernetes.io/auth-response-headers: X-User-Id, X-Role-Id
+    nginx.ingress.kubernetes.io/auth-cache-key: $http_authorization
+    nginx.ingress.kubernetes.io/client-max-body-size: "2m"
+    nginx.ingress.kubernetes.io/auth-snippet: |
+      # proxy_pass_request_body off;
+      proxy_set_header Content-Length "";
+      proxy_set_header X-Original-URI $request_uri;
+spec:
+  rules:
+  - host: core.app.local
+    http:
+      paths:
+      - backend:
+          serviceName: core-service
+          servicePort: 80
+  # - host: auth.app.local
+  #   http:
+  #     paths:
+  #     - backend:
+  #         serviceName: authentication-service
+  #         servicePort: 80
+  - host: chat.app.local
+    http:
+      paths:
+      - backend:
+          serviceName: chat-service
+          servicePort: 80
+
+---
+
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: authentication
+  namespace: kubernetes-app
+  labels:
+    app: gateway
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+  - host: auth.app.local
+    http:
+      paths:
+      - backend:
+          serviceName: authentication-service
+          servicePort: 80

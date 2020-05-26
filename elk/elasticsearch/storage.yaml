@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: elasticsearch-logging-pv-volume
+  name: elasticsearch-logging
   namespace: kubernetes-logging
   labels:
     app: elasticsearch-logging
@@ -19,11 +19,14 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: elasticsearch-logging-pv-claim
+  name: elasticsearch-logging
   namespace: kubernetes-logging
   labels:
     app: elasticsearch-logging
 spec:
+  selector:
+    matchLabels:
+      app: elasticsearch-logging
   storageClassName: elasticsearch-logging
   accessModes:
     - ReadWriteOnce

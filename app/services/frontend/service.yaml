@@ -9,6 +9,6 @@ spec:
   selector:
    app: frontend
   ports:
-  - name: web-app
-    port: 4000
+  - name: http
+    port: 80
     targetPort: 4000
