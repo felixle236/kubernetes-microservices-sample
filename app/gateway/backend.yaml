@@ -12,11 +12,7 @@ metadata:
     nginx.ingress.kubernetes.io/auth-method: POST
     nginx.ingress.kubernetes.io/auth-response-headers: X-User-Id, X-Role-Id
     nginx.ingress.kubernetes.io/auth-cache-key: $http_authorization
-    nginx.ingress.kubernetes.io/client-max-body-size: "2m"
-    nginx.ingress.kubernetes.io/auth-snippet: |
-      # proxy_pass_request_body off;
-      proxy_set_header Content-Length "";
-      proxy_set_header X-Original-URI $request_uri;
+    nginx.ingress.kubernetes.io/client-max-body-size: 1m
 spec:
   rules:
   - host: core.app.local
